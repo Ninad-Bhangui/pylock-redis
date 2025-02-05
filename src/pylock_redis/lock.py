@@ -1,3 +1,4 @@
+from types import TracebackType
 from .backend import Backend
 
 
@@ -10,5 +11,5 @@ class Locker:
     def __enter__(self):
         pass
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, exc_type: type[BaseException] | None, exc_value: BaseException | None, traceback: TracebackType):
         pass
