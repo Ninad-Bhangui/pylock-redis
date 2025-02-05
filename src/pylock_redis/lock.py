@@ -2,7 +2,7 @@ from datetime import timedelta
 from types import TracebackType
 from uuid import uuid4
 from .backend import Backend
-from .retry import retry
+from .retry import exponential_retry
 
 
 class Locker:
@@ -26,7 +26,7 @@ class Locker:
         self.max_retries = max_retries
 
     def __enter__(self):
-        @retry(self.max_retries, 1)
+        @exponential_retry(self.max_retries, 2)
         def try_lock():
             return self.backend.lock(
                 self.identifier, self.identifier_value, self.lock_validity_time
