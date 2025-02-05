@@ -11,22 +11,25 @@ class Locker:
     identifier_value: str
     lock_validity_time: timedelta
     max_retries: int
+    backoff_factor: int
 
     def __init__(
         self,
         backend: Backend,
         identifier: str,
         lock_validity_time: timedelta,
-        max_retries: int,
+        max_retries: int = 10,
+        backoff_factor: int = 2,
     ) -> None:
         self.backend = backend
         self.identifier = identifier
         self.identifier_value = str(uuid4())
         self.lock_validity_time = lock_validity_time
         self.max_retries = max_retries
+        self.backoff_factor = backoff_factor
 
     def __enter__(self):
-        @exponential_retry(self.max_retries, 2)
+        @exponential_retry(self.max_retries, self.backoff_factor)
         def try_lock():
             return self.backend.lock(
                 self.identifier, self.identifier_value, self.lock_validity_time
