@@ -1,10 +1,10 @@
-from pylock_redis.backend import RedisBackend
+# from pylock_redis.backend import RedisBackend
 import time
 import threading
 
 
 def test_function_is_locked(redis_client):
-    backend = RedisBackend(redis_client)
+    # backend = RedisBackend(redis_client)
     shared_value = do_something(100)
     assert shared_value == 100
 

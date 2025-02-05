@@ -25,5 +25,18 @@ jobs:
       - name: Install the project
         run: uv sync --all-extras --all-groups
 
+      - name: Lint Check
+        uses: astral-sh/ruff-action@v3
+        with:
+          src: "./src"
+          args: "check"
+
+      - name: Format Check
+        uses: astral-sh/ruff-action@v3
+        with:
+          src: "./src"
+          args: "format --check"
+
+
       - name: Run tests
         run: uv run pytest src/tests
