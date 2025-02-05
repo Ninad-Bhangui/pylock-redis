@@ -8,8 +8,8 @@ class Backend(Protocol):
 
 
 class RedisBackend:
-    def __init__(self, client: Redis[str]) -> None:
-        self.client: Redis[str] = client
+    def __init__(self, client: Redis) -> None:
+        self.client: Redis = client
 
     def ping(self):
         return self.client.ping()
