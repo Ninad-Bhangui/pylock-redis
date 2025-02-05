@@ -4,8 +4,10 @@ from redis import Redis
 
 
 class Backend(Protocol):
-    def lock(self, identifier: str, identifier_value: str, lock_validity_time: timedelta)-> bool: ...
-    def unlock(self, identifier: str, identifier_value: str)-> bool: ...
+    def lock(
+        self, identifier: str, identifier_value: str, lock_validity_time: timedelta
+    ) -> bool: ...
+    def unlock(self, identifier: str, identifier_value: str) -> bool: ...
 
 
 class RedisBackend:
@@ -15,11 +17,16 @@ class RedisBackend:
     def ping(self):
         return self.client.ping()
 
-    def lock(self, identifier: str, identifier_value: str, lock_validity_time: timedelta)-> bool:
-        res = self.client.set(identifier, identifier_value, nx=True,px=lock_validity_time)
+    def lock(
+        self, identifier: str, identifier_value: str, lock_validity_time: timedelta
+    ) -> bool:
+        res = self.client.set(
+            identifier, identifier_value, nx=True, px=lock_validity_time
+        )
         if res:
             return res
         return False
+
     def unlock(self, identifier: str, identifier_value: str):
         unlock_lua = """
 if redis.call("get",KEYS[1]) == ARGV[1] then
