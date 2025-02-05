@@ -17,6 +17,6 @@ lint = [
     "ruff>=0.9.4",
 ]
 test = [
-    "fakeredis>=2.26.2",
+    "fakeredis[lua]>=2.26.2",
     "pytest>=8.3.4",
 ]
