@@ -26,4 +26,4 @@ jobs:
         run: uv sync --all-extras --all-groups
 
       - name: Run tests
-        run: uv run pytests src/tests
+        run: uv run pytest src/tests
