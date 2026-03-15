@@ -27,8 +27,15 @@ class Locker:
         self.lock_validity_time = lock_validity_time
         self.max_retries = max_retries
         self.backoff_factor = backoff_factor
+        self.entered_once = False
 
     def __enter__(self):
+        if self.entered_once:
+            raise RuntimeError(
+                "Locker instances are single use; use a new instance for each lock attempt"
+            )
+        self.entered_once = True
+
         @exponential_retry(self.max_retries, self.backoff_factor)
         def try_lock():
             return self.backend.lock(
