@@ -4,6 +4,8 @@ import functools
 import time
 import random
 
+from .exceptions import LockAcquisitionError
+
 
 T = TypeVar("T")
 
@@ -23,7 +25,9 @@ def exponential_retry(
                     sleep_seconds: float = 1 * (backoff_factor**attempt) + jitter
                     time.sleep(sleep_seconds)
 
-            raise Exception(f"Function {func.__name__} failed after {retries} retries")
+            raise LockAcquisitionError(
+                f"Function {func.__name__} failed after {retries} retries"
+            )
 
         return wrapper
 

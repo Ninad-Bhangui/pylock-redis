@@ -5,6 +5,7 @@ import threading
 import time
 import pytest
 
+from pylock_redis.exceptions import LockAcquisitionError
 from pylock_redis.lock import Locker
 
 
@@ -54,7 +55,7 @@ def test_second_locker_raises_after_retry_limit(redis_client: Redis):
     )
 
     with first_locker:
-        with pytest.raises(Exception, match="failed after 1 retries"):
+        with pytest.raises(LockAcquisitionError, match="failed after 1 retries"):
             with second_locker:
                 pass
 
@@ -69,3 +70,27 @@ def test_reusing_same_locker_raises_runtime_error(redis_client: Redis):
     with pytest.raises(RuntimeError, match="single use"):
         with locker:
             pass
+
+
+def test_second_locker_acquires_after_first_ttl_expires(redis_client: Redis):
+    backend = RedisBackend(redis_client)
+    first_locker = Locker(
+        backend,
+        "testidentifier",
+        timedelta(milliseconds=50),
+        max_retries=1,
+        backoff_factor=1,
+    )
+    second_locker = Locker(
+        backend,
+        "testidentifier",
+        timedelta(milliseconds=50),
+        max_retries=1,
+        backoff_factor=1,
+    )
+
+    first_locker.__enter__()
+    time.sleep(0.06)
+
+    with second_locker:
+        pass

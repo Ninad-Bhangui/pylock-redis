@@ -1,0 +1,2 @@
+class LockAcquisitionError(Exception):
+    pass

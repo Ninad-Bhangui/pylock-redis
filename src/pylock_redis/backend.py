@@ -13,6 +13,14 @@ class Backend(Protocol):
 class RedisBackend:
     def __init__(self, client: Redis) -> None:
         self.client: Redis = client
+        unlock_lua = """
+if redis.call("get",KEYS[1]) == ARGV[1] then
+    return redis.call("del",KEYS[1])
+else
+    return 0
+end
+"""
+        self._unlock_script = self.client.register_script(unlock_lua)
 
     def ping(self):
         return self.client.ping()
@@ -28,15 +36,7 @@ class RedisBackend:
         return False
 
     def unlock(self, identifier: str, identifier_value: str):
-        unlock_lua = """
-if redis.call("get",KEYS[1]) == ARGV[1] then
-    return redis.call("del",KEYS[1])
-else
-    return 0
-end
-"""
-        unlock = self.client.register_script(unlock_lua)
-        res = unlock(keys=[identifier], args=[identifier_value])
+        res = self._unlock_script(keys=[identifier], args=[identifier_value])
         if res:
             return res
         return False
