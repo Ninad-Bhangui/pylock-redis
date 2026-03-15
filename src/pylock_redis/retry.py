@@ -20,7 +20,7 @@ def exponential_retry(
                 if result:
                     return result
                 if attempt < retries - 1:
-                    sleep_seconds: int = 1 * (backoff_factor**attempt) + jitter
+                    sleep_seconds: float = 1 * (backoff_factor**attempt) + jitter
                     time.sleep(sleep_seconds)
 
             raise Exception(f"Function {func.__name__} failed after {retries} retries")
