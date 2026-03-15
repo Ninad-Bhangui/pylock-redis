@@ -3,6 +3,7 @@ from redis import Redis
 from pylock_redis.backend import RedisBackend
 import threading
 import time
+import pytest
 
 from pylock_redis.lock import Locker
 
@@ -32,3 +33,26 @@ def do_something(num_runs: int, backend: RedisBackend):
     for t in threads:
         t.join()
     return shared_value[0]
+
+
+def test_second_locker_raises_after_retry_limit(redis_client: Redis):
+    backend = RedisBackend(redis_client)
+    first_locker = Locker(
+        backend,
+        "testidentifier",
+        timedelta(seconds=10),
+        max_retries=2,
+        backoff_factor=1,
+    )
+    second_locker = Locker(
+        backend,
+        "testidentifier",
+        timedelta(seconds=10),
+        max_retries=1,
+        backoff_factor=1,
+    )
+
+    with first_locker:
+        with pytest.raises(Exception, match="failed after 1 retries"):
+            with second_locker:
+                pass
