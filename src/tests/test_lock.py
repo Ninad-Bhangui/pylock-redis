@@ -35,6 +35,7 @@ def do_something(num_runs: int, backend: RedisBackend):
     return shared_value[0]
 
 
+# AI generated test
 def test_second_locker_raises_after_retry_limit(redis_client: Redis):
     backend = RedisBackend(redis_client)
     first_locker = Locker(
